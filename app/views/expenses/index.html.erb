@@ -1,0 +1,113 @@
+<!-- app/views/expenses/index.html.erb -->
+<div class="container">
+  <h1>ライフカツカツ</h1>
+  
+  <div class="status-panel">
+    <h2>現在の状況</h2>
+    <p class="total-balance">
+      総残高: <%= number_to_currency(@total_balance, unit: "¥", precision: 0, format: "%u%n") %>
+    </p>
+    <div class="survival-status">
+      <% if @can_survive %>
+        <p class="survive">👍 生きていけそうです！</p>
+      <% else %>
+        <p class="danger">⚠️ ヤバいです！支出を見直しましょう！</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- app/views/expenses/index.html.erb -->
+  <!-- 所持金入力フォーム -->
+  <section class="form-section">
+    <h2>💰 所持金を追加</h2>
+    <%= form_with(url: accounts_path, method: :post, local: true) do |f| %>
+      <%= f.hidden_field :authenticity_token, value: form_authenticity_token %>
+      <div class="form-group">
+        <%= f.label :name, "名前" %>
+        <%= f.text_field :name, required: true %>
+      </div>
+      <div class="form-group">
+        <%= f.label :balance, "金額" %>
+        <%= f.number_field :balance, required: true %>
+      </div>
+      <div class="form-group">
+        <%= f.label :account_type, "種類" %>
+        <%= f.select :account_type, ['財布', '銀行口座', 'その他'] %>
+      </div>
+      <%= f.submit "追加する", class: 'btn btn-primary', data: { disable_with: '追加中...' } %>
+    <% end %>
+  </section>
+
+  <!-- 出費入力フォーム -->
+  <section class="form-section">
+    <h2>💸 出費を追加</h2>
+    <%= form_with(url: expenses_path, method: :post, local: true) do |f| %>
+      <%= f.hidden_field :authenticity_token, value: form_authenticity_token %>
+      <div class="form-group">
+        <%= f.label :title, "タイトル" %>
+        <%= f.text_field :title, required: true %>
+      </div>
+      <div class="form-group">
+        <%= f.label :amount, "金額" %>
+        <%= f.number_field :amount, required: true %>
+      </div>
+      <div class="form-group">
+        <%= f.label :expense_date, "日付" %>
+        <%= f.date_field :expense_date, value: Date.today, required: true %>
+      </div>
+      <div class="form-group">
+        <%= f.label :category, "カテゴリ" %>
+        <%= f.select :category, ['食費', '交通費', '住居費', '光熱費', '通信費', '娯楽費', 'その他'] %>
+      </div>
+      <%= f.submit "追加する", class: 'btn btn-primary', data: { disable_with: '追加中...' } %>
+    <% end %>
+  </section>
+
+  <!-- データ一覧表示 -->
+  <div class="lists-section">
+    <section class="accounts-list">
+    <h2>所持金一覧</h2>
+    <% if @accounts.present? %>
+      <div class="list-items">
+        <% @accounts.each do |account| %>
+          <div class="list-item">
+            <span class="item-name"><%= account["name"] %></span>
+            <span class="item-amount">
+              <%= number_to_currency(account["balance"].to_f, unit: "¥", precision: 0, format: "%u%n") %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p>所持金が登録されていません</p>
+    <% end %>
+  </section>
+  
+  <section class="expenses-list">
+    <h2>出費一覧</h2>
+    <% if @expenses.present? %>
+      <div class="list-items">
+        <% @expenses.each do |expense| %>
+          <div class="list-item">
+            <span class="item-title"><%= expense["title"] %></span>
+            <span class="item-amount">
+              <%= number_to_currency(expense["amount"].to_f, unit: "¥", precision: 0, format: "%u%n") %>
+            </span>
+            <span class="item-date"><%= expense["expense_date"] %></span>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p>出費が登録されていません</p>
+    <% end %>
+  </section>
+  </div>
+
+  <div class="reset-section">
+    <%= button_to 'データをリセット', 
+        reset_expenses_path, 
+        method: :post, 
+        class: 'reset-btn',
+        data: { confirm: '全てのデータがリセットされます。よろしいですか？' } %>
+  </div>
+</div>

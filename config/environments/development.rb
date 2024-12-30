@@ -73,6 +73,10 @@ Rails.application.configure do
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true
 
+  config.cache_classes = false
+  config.action_controller.allow_forgery_protection = true
+  config.action_controller.default_protect_from_forgery = true
+
   # Annotate rendered view with file names.
   config.action_view.annotate_rendered_view_with_filenames = true
 
